@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @font-face {
+            font-family: 'Momcake';
+            src: url(Momcake-Bold.otf);
+        }
+
+        body {
+            background-color: #f9faf5;
+        }
+
+        .grid-item {
+            background-color: #ffffff;
+            height: 60px;
+            width: 60px;
+            border-radius: 8px;
+            border: solid 2px rgb(177, 177, 177);
+            box-sizing: border-box;
+            font-family: 'Momcake';
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(30, 29, 29);
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            gap: 7px;
+
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .container {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .activeItem {
+            border-color: rgb(102, 102, 102);
+
+        }
+
+        .scaledItem {
+            transform: scale(1.1);
+            /* Slight zoom effect */
+            transition: transform 0.1s ease;
+        }
+
+        .wrongPos {
+            background-color: rgb(228, 190, 0);
+            border-width: 0px;
+            color: white;
+        }
+
+        .correctPos {
+            background-color: #48d158;
+            color: white;
+            border-width: 0px;
+        }
+
+        .wrongLet {
+            background-color: rgb(191, 191, 191);
+            color: white;
+            border-width: 0px;
+        }
+
+        .normalScale {
+            transform: scale(1);
+            transition: transform 0.2s ease;
+        }
+
+        .title-div {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom:30px;
+            margin-top:100px;
+        }
+
+        .ner-align {
+            display: flex;
+            font-size: 50px;
+            justify-content: space-around;
+            width: 200px;
+        }
+        .main-container{
+            display:flex;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        // WORDLE GAME USING A TXT DICTIONARY
+        const wordLength = 5;
+        let guess;
+        let word;
+        let dictSet;
+        let dictArr;
+        let r = 0;
+        let n = 0;
+        let rows;
+        loadDict();
+        async function loadDict() {
+            let response = await fetch('validWords.txt');
+            let data = await response.text();
+            let allWords = (data
+                .split('\n')
+                .map(word => word.trim().toLowerCase()))
+            dictSet = new Set(allWords);
+            response = await fetch('2kWords.txt');
+            data = await response.text();
+            dictArr = data.split(`\n`).map(word => word.trim().toLowerCase())
+            console.log(dictSet);
+            startWordle();
+        }
+        function startWordle() {
+            let container = document.querySelector('.container');
+            document.removeEventListener('keydown', checkWord); // 🧼 Clean up old listeners
+            container.innerHTML = `
+                <div class="container">
+                    <div class="row"></div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                </div>
+            `;
+            word = dictArr[Math.floor(Math.random() * dictArr.length)];
+            r = 0;
+            n = 0;
+            document.addEventListener('keydown', checkWord)
+
+            rows = document.querySelectorAll('.row')
+            for (let i = 0; i < 6; i++) {
+                let j = 0;
+                while (j < 5) {
+                    let div = document.createElement('div'); // CREATING AND ADDING ELEMENTS TO THE ROWS
+                    div.classList.add('grid-item');
+                    rows[i].appendChild(div);
+                    j++;
+                }
+            }
+        }
+        function checkWord(event) {
+            guess = ''
+            let letterCount = {};
+            for (let letter of word) {
+                letterCount[`${letter}`] = (letterCount[`${letter}`] || 0) + 1;
+            };
+            if (String(event.key) == 'Enter' && n == 5) {
+                if (rows[r].children[4].classList.contains('scaledItem')) {
+                    rows[r].children[4].classList.add('normalScale');
+                }
+                for (let numb = 0; numb < wordLength; numb++) {
+                    guess = guess.concat(rows[r].children[numb].innerText.toLowerCase());
+                }
+                if (dictSet.has(`${guess}`)) {
+                    for (let numb = 0; numb < wordLength; numb++) {
+                        if (rows[r].children[numb].innerText == word[numb] && letterCount[`${rows[r].children[numb].innerText}`] > 0) {
+                            rows[r].children[numb].classList.add('correctPos')
+                            letterCount[`${rows[r].children[numb].innerText}`]--;
+                        }
+                    }
+                    for (let numb = 0; numb < wordLength; numb++) {
+                        if (word.includes(rows[r].children[numb].innerText)
+                            && !(rows[r].children[numb].classList.contains('correctPos'))
+                            && letterCount[`${rows[r].children[numb].innerText}`] > 0) {
+                            rows[r].children[numb].classList.add('wrongPos')
+                            letterCount[`${rows[r].children[numb].innerText}`]--;
+                        }
+                    }
+                    for (let numb = 0; numb < wordLength; numb++) {
+                        if (!(rows[r].children[numb].classList.contains('correctPos'))
+                            && !(rows[r].children[numb].classList.contains('wrongPos'))
+                        ) {
+                            rows[r].children[numb].classList.add('wrongLet')
+                        }
+                    }
+                    r++;
+                    n = 0;
+                    if (guess === word) {
+                        alert('You win.')
+                        document.removeEventListener('keydown', checkWord);
+                        startWordle();
+                    }
+                }
+
+            } else if (event.key.length == 1 && n <= 4 && event.key != ' ') {
+                if (n > 0) {
+                    rows[r].children[n - 1].classList.add('normalScale');
+                }
+                rows[r].children[n].innerText = event.key;
+                rows[r].children[n].classList.add('activeItem', 'scaledItem');
+                n++;
+            } else if (event.key == 'Backspace') {
+                n = n > 0 ? n - 1 : 0;
+                rows[r].children[n].classList.remove('activeItem', 'normalScale', 'scaledItem');
+                rows[r].children[n].innerText = '';
+            }
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+    <div class="title-div">
+        <div class="grid-item correctPos ner-align">
+            <div>n</div>
+            <div>e</div>
+            <div>r</div>
+        </div>
+        <div class="grid-item">d</div>
+        <div class="grid-item wrongPos" , style="transform: scale(1.1);">l</div>
+        <div class="grid-item wrongLet">e</div>
+    </div>
+    <div class="main-container">
+        <div class="container">
+            <div class="row row-1"></div>
+            <div class="row row-2"></div>
+            <div class="row row-3"></div>
+            <div class="row row-4"></div>
+            <div class="row row-5"></div>
+            <div class="row row-6"></div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
