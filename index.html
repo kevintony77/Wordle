@@ -17,13 +17,13 @@
 
         .grid-item {
             background-color: #ffffff;
-            height: 60px;
-            width: 60px;
+            aspect-ratio: 1/1;
+            flex:1;
             border-radius: 8px;
             border: solid 2px rgb(177, 177, 177);
             box-sizing: border-box;
             font-family: 'Momcake';
-            font-size: 40px;
+            font-size: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: row;
             gap: 7px;
+            flex:1;
 
         }
 
@@ -41,10 +42,13 @@
             display: flex;
             flex-direction: column;
             gap: 7px;
+            min-width:300px;
+            width:25vw;
         }
 
         .container {
             background-color: rgb(255, 255, 255);
+            margin:auto;
         }
 
         .activeItem {
@@ -85,8 +89,8 @@
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-bottom:30px;
-            margin-top:100px;
+            margin-bottom: 30px;
+            margin-top: 100px;
         }
 
         .ner-align {
@@ -95,9 +99,58 @@
             justify-content: space-around;
             width: 200px;
         }
-        .main-container{
-            display:flex;
+
+        .main-container {
+            display: flex;
             justify-content: center;
+        }
+
+        .keyboard {
+            display:flex;
+            flex-direction: column;
+            width:90vw;
+            height:240px;
+            margin:auto;
+            margin-top:20px;
+        }
+
+        .kb-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+            flex:1;
+        }
+
+        .kb-row div {
+            font-family: 'Momcake';
+            flex: 1;
+            background-color: rgb(187, 187, 187);
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            user-select: none;
+            padding-left: 5px;
+            padding-right: 5px;
+            box-sizing: border-box;
+            height:100%;
+        }
+        @media (max-width: 400px){
+            .keyboard{
+                width:100%;
+            }
+        }
+        @media(min-width: 1000px){
+            .keyboard{
+                width:60vw;
+            }
+        }
+        @media (max-height: 620px){
+            .keyboard{
+                height:170px;
+            }
         }
     </style>
     <script>
@@ -111,6 +164,18 @@
         let n = 0;
         let rows;
         loadDict();
+        window.onload = () => {
+            kbRows = document.querySelectorAll('.kb-row');
+            for (let i = 0; i < kbRows.length; i++) {
+                for (let j = 0; j < kbRows[i].children.length; j++) {
+                    kbRows[i].children[j].addEventListener('click', () => {
+                        let fakeEvent = {key: kbRows[i].children[j].innerText=='Back' ? 'Backspace':kbRows[i].children[j].innerText}
+                        checkWord(fakeEvent);
+                    })
+                }
+            }
+        }
+
         async function loadDict() {
             let response = await fetch('validWords.txt');
             let data = await response.text();
@@ -126,16 +191,16 @@
         }
         function startWordle() {
             let container = document.querySelector('.container');
-            document.removeEventListener('keydown', checkWord); // 🧼 Clean up old listeners
+            document.removeEventListener('keydown', checkWord);
             container.innerHTML = `
-                <div class="container">
-                    <div class="row"></div>
-                    <div class="row"></div>
-                    <div class="row"></div>
-                    <div class="row"></div>
-                    <div class="row"></div>
-                    <div class="row"></div>
-                </div>
+                
+                <div class="row"></div>
+                <div class="row"></div>
+                <div class="row"></div>
+                <div class="row"></div>
+                <div class="row"></div>
+                <div class="row"></div>
+
             `;
             word = dictArr[Math.floor(Math.random() * dictArr.length)];
             r = 0;
@@ -169,7 +234,7 @@
                 if (dictSet.has(`${guess}`)) {
                     for (let numb = 0; numb < wordLength; numb++) {
                         if (rows[r].children[numb].innerText == word[numb] && letterCount[`${rows[r].children[numb].innerText}`] > 0) {
-                            rows[r].children[numb].classList.add('correctPos')
+                            rows[r].children[numb].classList.add('correctPos');
                             letterCount[`${rows[r].children[numb].innerText}`]--;
                         }
                     }
@@ -217,26 +282,50 @@
 </head>
 
 <body>
-    <div class="title-div">
-        <div class="grid-item correctPos ner-align">
-            <div>n</div>
+
+    <div class="container">
+        <div class="row row-1"></div>
+        <div class="row row-2"></div>
+        <div class="row row-3"></div>
+        <div class="row row-4"></div>
+        <div class="row row-5"></div>
+        <div class="row row-6"></div>
+    </div>
+    <div class="keyboard">
+        <div class="kb-row">
+            <div>q</div>
+            <div>w</div>
             <div>e</div>
             <div>r</div>
+            <div>t</div>
+            <div>y</div>
+            <div>u</div>
+            <div>i</div>
+            <div>o</div>
+            <div>p</div>
         </div>
-        <div class="grid-item">d</div>
-        <div class="grid-item wrongPos" , style="transform: scale(1.1);">l</div>
-        <div class="grid-item wrongLet">e</div>
-    </div>
-    <div class="main-container">
-        <div class="container">
-            <div class="row row-1"></div>
-            <div class="row row-2"></div>
-            <div class="row row-3"></div>
-            <div class="row row-4"></div>
-            <div class="row row-5"></div>
-            <div class="row row-6"></div>
+        <div class="kb-row">
+            <div>a</div>
+            <div>s</div>
+            <div>d</div>
+            <div>f</div>
+            <div>g</div>
+            <div>h</div>
+            <div>j</div>
+            <div>k</div>
+            <div>l</div>
         </div>
-
+        <div class="kb-row">
+            <div style="flex:2">Back</div>
+            <div>z</div>
+            <div>x</div>
+            <div>c</div>
+            <div>v</div>
+            <div>b</div>
+            <div>n</div>
+            <div>m</div>
+            <div style="flex:2">Enter</div>
+        </div>
     </div>
 
 </body>
