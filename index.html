@@ -18,7 +18,7 @@
         .grid-item {
             background-color: #ffffff;
             aspect-ratio: 1/1;
-            flex:1;
+            flex: 1;
             border-radius: 8px;
             border: solid 2px rgb(177, 177, 177);
             box-sizing: border-box;
@@ -34,7 +34,7 @@
             display: flex;
             flex-direction: row;
             gap: 7px;
-            flex:1;
+            flex: 1;
 
         }
 
@@ -42,13 +42,13 @@
             display: flex;
             flex-direction: column;
             gap: 7px;
-            min-width:300px;
-            width:25vw;
+            min-width: 300px;
+            width: 25vw;
         }
 
         .container {
             background-color: rgb(255, 255, 255);
-            margin:auto;
+            margin: auto;
         }
 
         .activeItem {
@@ -106,25 +106,26 @@
         }
 
         .keyboard {
-            display:flex;
+            display: flex;
             flex-direction: column;
-            width:90vw;
-            height:240px;
-            margin:auto;
-            margin-top:20px;
+            width: 90vw;
+            height: 240px;
+            margin: auto;
+            margin-top: 20px;
         }
 
         .kb-row {
             display: flex;
             gap: 4px;
             margin-bottom: 4px;
-            flex:1;
+            flex: 1;
         }
+
 
         .kb-row div {
             font-family: 'Momcake';
             flex: 1;
-            background-color: rgb(187, 187, 187);
+            background-color: #bbbbbb;
             height: 40px;
             border-radius: 5px;
             display: flex;
@@ -135,21 +136,29 @@
             padding-left: 5px;
             padding-right: 5px;
             box-sizing: border-box;
-            height:100%;
+            height: 100%;
         }
-        @media (max-width: 400px){
-            .keyboard{
-                width:100%;
+
+        .usedLet {
+            background-color: #626161;
+            color: white;
+        }
+
+        @media (max-width: 400px) {
+            .keyboard {
+                width: 100%;
             }
         }
-        @media(min-width: 1000px){
-            .keyboard{
-                width:60vw;
+
+        @media(min-width: 1000px) {
+            .keyboard {
+                width: 60vw;
             }
         }
-        @media (max-height: 620px){
-            .keyboard{
-                height:170px;
+
+        @media (max-height: 620px) {
+            .keyboard {
+                height: 170px;
             }
         }
     </style>
@@ -169,7 +178,7 @@
             for (let i = 0; i < kbRows.length; i++) {
                 for (let j = 0; j < kbRows[i].children.length; j++) {
                     kbRows[i].children[j].addEventListener('click', () => {
-                        let fakeEvent = {key: kbRows[i].children[j].innerText=='Back' ? 'Backspace':kbRows[i].children[j].innerText}
+                        let fakeEvent = { key: kbRows[i].children[j].innerText == 'Back' ? 'Backspace' : kbRows[i].children[j].innerText }
                         checkWord(fakeEvent);
                     })
                 }
@@ -237,6 +246,14 @@
                             rows[r].children[numb].classList.add('correctPos');
                             letterCount[`${rows[r].children[numb].innerText}`]--;
                         }
+                        for (let d = 0; d < kbRows.length; d++) {
+                            for (let m = 0; m < kbRows[d].children.length; m++) {
+                                if (kbRows[d].children[m].innerText == rows[r].children[numb].innerText) {
+                                    kbRows[d].children[m].classList.add('usedLet');
+                                    kbRows[d].children[m].style.backgroundColor = '#626161';
+                                }
+                            }
+                        }
                     }
                     for (let numb = 0; numb < wordLength; numb++) {
                         if (word.includes(rows[r].children[numb].innerText)
@@ -258,6 +275,14 @@
                     if (guess === word) {
                         alert('You win.')
                         document.removeEventListener('keydown', checkWord);
+                        for (let d = 0; d < kbRows.length; d++) {
+                            for (let m = 0; m < kbRows[d].children.length; m++) {
+
+                                kbRows[d].children[m].classList.remove('usedLet');
+                                kbRows[d].children[m].style.backgroundColor = '#bbbbbb';
+
+                            }
+                        }
                         startWordle();
                     }
                 }
